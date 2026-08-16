@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: casefile-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: casefile_user
+      POSTGRES_PASSWORD: casefile_dev_password
+      POSTGRES_DB: casefile_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - casefile_pg_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: casefile-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@casefile.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres
+
+volumes:
+  casefile_pg_data:

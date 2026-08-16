@@ -1,0 +1,27 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# React / Node
+node_modules/
+dist/
+build/
+.vite/
+
+# Environment / secrets
+.env
+.env.local
+*.env
+
+# Docker
+pgdata/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
