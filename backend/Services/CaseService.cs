@@ -6,11 +6,9 @@ namespace CaseFile.Api.Services;
 
 public class CaseService(CaseFileDbContext context) : ICaseService
 {
-    private readonly CaseFileDbContext _context = context;
-
     public async Task<CaseResponse?> GetCaseByIdAsync(Guid id)
     {
-        var caseEntity = await _context.Cases
+        var caseEntity = await context.Cases
             .Include(c => c.Suspects)
             .FirstOrDefaultAsync(c => c.Id == id);
 

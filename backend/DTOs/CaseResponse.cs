@@ -1,6 +1,6 @@
 namespace CaseFile.Api.DTOs;
 
-public record class CaseResponse(
+public record CaseResponse(
     Guid Id,
     string Title,
     string IntroText,
