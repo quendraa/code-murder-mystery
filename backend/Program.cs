@@ -1,4 +1,5 @@
 using CaseFile.Api.Data;
+using CaseFile.Api.Extensions;
 using CaseFile.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,13 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+builder.Services.AddApplicationServices();
 
 builder.Services.AddDbContext<CaseFileDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddControllers();
-
-builder.Services.AddScoped<ICaseService, CaseService>();
 
 var app = builder.Build();
 
