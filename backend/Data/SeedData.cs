@@ -135,7 +135,8 @@ public static class SeedData
             PromptText = "The bot log timestamps look off. Fix `getLastMessageTime` so it returns the last message's actual timestamp instead of `undefined`.",
             StarterCode = "function getLastMessageTime(messages) {\n  // BUG: off-by-one causes an out-of-bounds access\n  let lastIndex = messages.length;\n  return messages[lastIndex];\n}",
             Language = "javascript",
-            EvidenceId = evidence1.Id
+            EvidenceId = evidence1.Id,
+            FunctionName = "getLastMessageTime"
         };
 
         var clue2 = new Clue
@@ -148,7 +149,8 @@ public static class SeedData
             PromptText = "Write `getServerRoomAccess(logs)` that returns the names of everyone who badged into floor 4 (the server room floor) that night.",
             StarterCode = "function getServerRoomAccess(logs) {\n  // logs: array of { name, floor, time }\n  // TODO: return an array of names for entries where floor === 4\n}",
             Language = "javascript",
-            EvidenceId = evidence2.Id
+            EvidenceId = evidence2.Id,
+            FunctionName = "getServerRoomAccess"
         };
 
         context.Clues.AddRange(clue1, clue2);
