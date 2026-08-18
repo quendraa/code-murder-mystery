@@ -24,7 +24,7 @@ public class CluesController(IClueService clueService, IGradingService gradingSe
     [HttpPost("{id}/submit")]
     public async Task<ActionResult<SubmitSolutionResponse>> SubmitSolution(Guid id, [FromBody] SubmitSolutionRequest request)
     {
-        var result = await gradingService.GradeSubmissionAsync(id, request.Code);
+        var result = await gradingService.GradeSubmissionAsync(id, request.Code, request.SessionId);
 
         if (result == null)
             return NotFound();
