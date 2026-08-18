@@ -9,6 +9,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICaseService, CaseService>();
         services.AddScoped<IClueService, ClueService>();
         services.AddScoped<IGradingService, GradingService>();
+        services.AddScoped<IPlayerProgressService, PlayerProgressService>();
 
         services.AddHttpClient<IJudgeService, JudgeService>(client =>
         {

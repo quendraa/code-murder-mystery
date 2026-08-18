@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CaseFile.Api.Services;
 
-public class GradingService(CaseFileDbContext context, IJudgeService judgeService) : IGradingService
+public class GradingService(CaseFileDbContext context, IJudgeService judgeService, IPlayerProgressService progressService) : IGradingService
 {
-    public async Task<SubmitSolutionResponse?> GradeSubmissionAsync(Guid clueId, string submittedCode)
+    public async Task<SubmitSolutionResponse?> GradeSubmissionAsync(Guid clueId, string submittedCode, string sessionId)
     {
         var clue = await context.Clues
             .Include(c => c.TestCases)
@@ -43,6 +43,11 @@ public class GradingService(CaseFileDbContext context, IJudgeService judgeServic
         }
 
         var allPassed = results.All(r => r.Passed);
+
+        if (allPassed)
+        {
+            await progressService.MarkClueSolvedAsync(clue.CaseId, sessionId, clue.Id);
+        }
 
         return new SubmitSolutionResponse(
             AllTestsPassed: allPassed,

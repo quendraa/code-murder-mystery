@@ -4,5 +4,5 @@ namespace CaseFile.Api.Services;
 
 public interface IGradingService
 {
-    Task<SubmitSolutionResponse?> GradeSubmissionAsync(Guid clueId, string submittedCode);
+    Task<SubmitSolutionResponse?> GradeSubmissionAsync(Guid clueId, string submittedCode, string sessionId);
 }
