@@ -39,5 +39,9 @@ public class Clue
     [ForeignKey(nameof(EvidenceId))]
     public Evidence? Evidence { get; set; }
 
+    [Required]
+    [MaxLength(100)]
+    public string FunctionName { get; set; } = string.Empty;
+
     public ICollection<PuzzleTestCase> TestCases { get; set; } = new List<PuzzleTestCase>();
 }
