@@ -6,6 +6,12 @@ namespace CaseFile.Api.Services;
 
 public class CaseService(CaseFileDbContext context) : ICaseService
 {
+    public async Task<List<CaseSummaryResponse>> GetAllCasesAsync()
+    {
+        var caseEntityList = await context.Cases.ToListAsync();
+        return [.. caseEntityList.Select(c => new CaseSummaryResponse(c.Id, c.Title, c.VictimName))];
+    }
+
     public async Task<CaseResponse?> GetCaseByIdAsync(Guid id)
     {
         var caseEntity = await context.Cases

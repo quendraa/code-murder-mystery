@@ -12,7 +12,7 @@ public class ProgressController(IPlayerProgressService progressService) : Contro
     [HttpPost("{caseId}/start")]
     public async Task<ActionResult<PlayerProgressResponse>> StartProgress(Guid caseId, [FromBody] StartProgressRequest request)
     {
-        var result = await progressService.GetOrCreateProgressAsync(caseId, request.SessionId);
+        var result = await progressService.GetOrCreateProgressAsync(caseId, request.SessionId, request.DetectiveName);
         return Ok(result);
     }
 

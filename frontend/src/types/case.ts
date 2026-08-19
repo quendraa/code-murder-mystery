@@ -7,3 +7,9 @@ export interface Case {
   victimName: string;
   suspects: Suspect[];
 }
+
+export interface CaseSummary {
+  id: string;
+  title: string;
+  victimName: string;
+}
