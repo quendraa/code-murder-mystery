@@ -8,6 +8,14 @@ namespace CaseFile.Api.Controllers;
 [ApiController]
 public class CasesController(ICaseService caseService, IClueService clueService) : ControllerBase
 {
+    // GET /api/cases
+    [HttpGet]
+    public async Task<ActionResult<CaseSummaryResponse>> GetAllCases()
+    {
+        var result = await caseService.GetAllCasesAsync();
+        return Ok(result);
+    }
+
     // GET /api/cases/{id}
     [HttpGet("{id}")]
     public async Task<ActionResult<CaseResponse>> GetCase(Guid id)
