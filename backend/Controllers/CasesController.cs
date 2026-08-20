@@ -6,7 +6,11 @@ namespace CaseFile.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CasesController(ICaseService caseService, IClueService clueService) : ControllerBase
+public class CasesController(
+    ICaseService caseService,
+    IClueService clueService,
+    IAccusationService accusationService
+    ) : ControllerBase
 {
     // GET /api/cases
     [HttpGet]
@@ -33,6 +37,18 @@ public class CasesController(ICaseService caseService, IClueService clueService)
     public async Task<ActionResult<List<ClueSummaryResponse>>> GetCluesByCase(Guid caseId)
     {
         var result = await clueService.GetCluesByCaseIdAsync(caseId);
+        return Ok(result);
+    }
+
+    // POST /api/cases/{id}/accuse
+    [HttpPost("/{id}/accuse")]
+    public async Task<ActionResult<AccusationResponse>> Accuse(Guid id, [FromBody] AccusationRequest request)
+    {
+        var result = await accusationService.SubmitAccusationAsync(id, request.SessionId, request.SuspectId);
+
+        if (result == null)
+            return NotFound();
+
         return Ok(result);
     }
 }
