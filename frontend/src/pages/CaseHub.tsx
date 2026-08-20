@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { Case } from "../types/case";
 import type { ClueSummary } from "../types/clue";
 import type { Evidence } from "../types/evidence";
@@ -13,6 +13,7 @@ import SuspectCard from "../components/SuspectCard";
 
 export function CaseHub() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [clues, setClues] = useState<ClueSummary[]>([]);
@@ -81,9 +82,10 @@ export function CaseHub() {
               {clues.map((clue) => {
                 const isSolved = progress.solvedClueIds.includes(clue.id);
                 return (
-                  <div
+                  <button
                     key={clue.id}
-                    className="px-3 py-3 border"
+                    onClick={() => navigate(`/clues/${clue.id}`)}
+                    className="px-3 py-3 border text-left w-full"
                     style={{
                       borderColor: isSolved ? "#6fcf97" : "#232739",
                       opacity: isSolved ? 0.6 : 1,
@@ -103,7 +105,7 @@ export function CaseHub() {
                     >
                       {clue.puzzleType}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
