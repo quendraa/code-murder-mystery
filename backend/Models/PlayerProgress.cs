@@ -26,7 +26,4 @@ public class PlayerProgress
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? CompletedAt { get; set; }
-
-    [MaxLength(100)]
-    public string? DetectiveName { get; set; }
 }

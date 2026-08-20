@@ -19,7 +19,6 @@ public class PlayerProgressService(CaseFileDbContext context) : IPlayerProgressS
                 Id = Guid.NewGuid(),
                 CaseId = caseId,
                 PlayerSessionId = sessionId,
-                DetectiveName = detectiveName,
                 CurrentClueIndex = 0,
                 SolvedClueIds = string.Empty,
                 StartedAt = DateTime.UtcNow
@@ -68,7 +67,6 @@ public class PlayerProgressService(CaseFileDbContext context) : IPlayerProgressS
         new(
             progress.CaseId,
             progress.PlayerSessionId,
-            progress.DetectiveName,
             progress.CurrentClueIndex,
             ParseSolvedIds(progress.SolvedClueIds),
             progress.StartedAt,
