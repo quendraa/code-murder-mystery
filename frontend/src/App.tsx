@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
-import Landing from "./pages/Landing";
-import CaseSelect from "./pages/CaseSelect";
+import { CaseSelect } from "./pages/CaseSelect";
 import { CaseHub } from "./pages/CaseHub";
 import { Puzzle } from "./pages/Puzzle";
+import { Landing } from "./pages/Landing";
 
 function App() {
   return (

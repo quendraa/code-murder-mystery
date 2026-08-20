@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-function Landing() {
+export function Landing() {
   const navigate = useNavigate();
 
   return (
@@ -42,5 +42,3 @@ function Landing() {
     </div>
   );
 }
-
-export default Landing;

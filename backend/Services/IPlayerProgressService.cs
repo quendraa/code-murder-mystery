@@ -4,7 +4,7 @@ namespace CaseFile.Api.Services;
 
 public interface IPlayerProgressService
 {
-    Task<PlayerProgressResponse> GetOrCreateProgressAsync(Guid caseId, string sessionId, string? detectiveName = null);
+    Task<PlayerProgressResponse> GetOrCreateProgressAsync(Guid caseId, string sessionId);
     Task<PlayerProgressResponse?> GetProgressAsync(Guid caseId, string sessionId);
     Task MarkClueSolvedAsync(Guid caseId, string sessionId, Guid clueId);
 }

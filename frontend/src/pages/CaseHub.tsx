@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import type { Case } from "../types/case";
-import type { ClueSummary } from "../types/clue";
-import type { Evidence } from "../types/evidence";
-import type { PlayerProgress } from "../types/progress";
-import { getSessionId } from "../utils/session";
+import { useParams, useNavigate } from "react-router-dom";
 import { getCase, getCluesByCase } from "../api/cases";
 import { getEvidence } from "../api/evidence";
-import { getProgress } from "../api/progress";
-import { StatusScreen } from "../components/shared/StatusScreen";
+import { getSessionId } from "../utils/session";
+import { useCaseProgress } from "../hooks/useCaseProgress";
+import type { Case } from "../types/case";
 import SuspectCard from "../components/SuspectCard";
+import type { ClueSummary } from "../types/clue";
+import type { Evidence } from "../types/evidence";
+import { StatusScreen } from "../components/shared/StatusScreen";
 
 export function CaseHub() {
   const { id } = useParams<{ id: string }>();
@@ -18,38 +17,42 @@ export function CaseHub() {
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [clues, setClues] = useState<ClueSummary[]>([]);
   const [evidence, setEvidence] = useState<Evidence[]>([]);
-  const [progress, setProgress] = useState<PlayerProgress | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    progress,
+    loading: progressLoading,
+    error: progressError,
+  } = useCaseProgress(id);
 
   useEffect(() => {
     if (!id) return;
 
     const sessionId = getSessionId();
 
-    Promise.all([
-      getCase(id),
-      getCluesByCase(id),
-      getEvidence(id, sessionId),
-      getProgress(id, sessionId),
-    ])
-      .then(([caseResult, cluesResult, evidenceResult, progressResult]) => {
+    Promise.all([getCase(id), getCluesByCase(id), getEvidence(id, sessionId)])
+      .then(([caseResult, cluesResult, evidenceResult]) => {
         setCaseData(caseResult);
         setClues(cluesResult);
         setEvidence(evidenceResult);
-        setProgress(progressResult);
       })
-      .catch((err) => setError(err))
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) {
+  if (loading || progressLoading) {
     return <StatusScreen variant="loading" message="Loading case file..." />;
   }
 
-  if (error || !caseData || !progress) {
-    return <StatusScreen variant="error" message={`Error: ${error}`} />;
+  if (error || progressError || !caseData || !progress) {
+    return (
+      <StatusScreen
+        variant="error"
+        message={`Error: ${error || progressError}`}
+      />
+    );
   }
 
   return (
@@ -60,7 +63,7 @@ export function CaseHub() {
             className="text-[#a9762f] text-xs tracking-widest uppercase mb-2"
             style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           >
-            Detective {progress.detectiveName}
+            Case in progress
           </div>
           <h1
             className="text-[#f0ede3] text-3xl"

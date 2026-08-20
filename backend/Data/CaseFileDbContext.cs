@@ -15,6 +15,7 @@ public class CaseFileDbContext : DbContext
     public DbSet<PuzzleTestCase> PuzzleTestCases { get; set; }
     public DbSet<Evidence> Evidence { get; set; }
     public DbSet<PlayerProgress> PlayerProgress { get; set; }
+    public DbSet<Player> Player { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,7 +28,7 @@ public class CaseFileDbContext : DbContext
             .WithMany()
             .HasForeignKey(c => c.KillerSuspectId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         // Evidence → ReinterpretedAfterClue: also restrict, avoids a delete cycle
         // between Clue -> Evidence (unlocks) and Evidence -> Clue (reinterprets)
         modelBuilder.Entity<Evidence>()
@@ -42,5 +43,9 @@ public class CaseFileDbContext : DbContext
             .WithMany()
             .HasForeignKey(c => c.EvidenceId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Player>()
+            .HasIndex(p => p.SessionId)
+            .IsUnique();
     }
 }
