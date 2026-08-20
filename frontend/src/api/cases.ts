@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { Case, CaseSummary } from "../types/case";
 import { API_BASE_URL } from "./config";
+import type { ClueSummary } from "../types/clue";
 
 export async function getAllCases(): Promise<CaseSummary[]> {
   const response = await axios.get<CaseSummary[]>(`${API_BASE_URL}/cases`);
@@ -9,5 +10,13 @@ export async function getAllCases(): Promise<CaseSummary[]> {
 
 export async function getCase(caseId: string): Promise<Case> {
   const response = await axios.get<Case>(`${API_BASE_URL}/cases/${caseId}`);
+  return response.data;
+}
+
+export async function getCluesByCase(caseId: string): Promise<ClueSummary[]> {
+  const response = await axios.get<ClueSummary[]>(
+    `${API_BASE_URL}/cases/${caseId}/clues`,
+  );
+
   return response.data;
 }

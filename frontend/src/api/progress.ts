@@ -14,3 +14,17 @@ export async function startProgress(
 
   return result.data;
 }
+
+export async function getProgress(
+  caseId: string,
+  sessionId: string,
+): Promise<PlayerProgress> {
+  const response = await axios.get<PlayerProgress>(
+    `${API_BASE_URL}/progress/${caseId}`,
+    {
+      params: { sessionId },
+    },
+  );
+
+  return response.data;
+}
