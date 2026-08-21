@@ -7,4 +7,5 @@ public interface IPlayerProgressService
     Task<PlayerProgressResponse> GetOrCreateProgressAsync(Guid caseId, string sessionId);
     Task<PlayerProgressResponse?> GetProgressAsync(Guid caseId, string sessionId);
     Task MarkClueSolvedAsync(Guid caseId, string sessionId, Guid clueId);
+    Task ResetProgressAsync(Guid caseId, string sessionId);
 }

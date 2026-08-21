@@ -27,4 +27,12 @@ public class ProgressController(IPlayerProgressService progressService) : Contro
 
         return Ok(result);
     }
+
+    // DELETE /api/progress/{caseId}?sessionId=xxx
+    [HttpDelete("caseId")]
+    public async Task<IActionResult> ResetProgress(Guid caseId, [FromQuery] string sessionId)
+    {
+        await progressService.ResetProgressAsync(caseId, sessionId);
+        return NoContent();
+    }
 }
