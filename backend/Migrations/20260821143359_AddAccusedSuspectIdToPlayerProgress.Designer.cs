@@ -3,6 +3,7 @@ using System;
 using CaseFile.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CaseFile.Api.Migrations
 {
     [DbContext(typeof(CaseFileDbContext))]
-    partial class CaseFileDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260821143359_AddAccusedSuspectIdToPlayerProgress")]
+    partial class AddAccusedSuspectIdToPlayerProgress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
