@@ -112,6 +112,21 @@ export function CaseHub() {
                 );
               })}
             </div>
+
+            <button
+              onClick={() => navigate(`/cases/${id}/accuse`)}
+              className="w-full mt-4 px-4 py-3 border"
+              style={{
+                borderColor: "#b5432f",
+                color: "#b5432f",
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 12,
+                letterSpacing: 1,
+                fontWeight: 700,
+              }}
+            >
+              READY TO ACCUSE?
+            </button>
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-8">

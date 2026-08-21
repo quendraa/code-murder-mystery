@@ -41,7 +41,7 @@ public class CasesController(
     }
 
     // POST /api/cases/{id}/accuse
-    [HttpPost("/{id}/accuse")]
+    [HttpPost("{id}/accuse")]
     public async Task<ActionResult<AccusationResponse>> Accuse(Guid id, [FromBody] AccusationRequest request)
     {
         var result = await accusationService.SubmitAccusationAsync(id, request.SessionId, request.SuspectId);
