@@ -26,4 +26,8 @@ public class PlayerProgress
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? CompletedAt { get; set; }
+
+    public bool? AccusedCorrectly { get; set; }
+
+    public Guid? AccusedSuspectId { get; set; }
 }
