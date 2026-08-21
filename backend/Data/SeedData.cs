@@ -156,7 +156,15 @@ public static class SeedData
             LinkedSuspectId = suspects.First(s => s.Name == "Priya Patel").Id
         };
 
-        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5, evidence6);
+        var evidence7 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Alex's cleanup script comment",
+            DescriptionText = "Alex's cleanup script was supposed to auto-delete logs older than the retention cutoff every night - but a bug kept it from ever running correctly. That's the only reason any of tonight's evidence still exists. Buried in an unrelated comment in the script: \"saw someone by the server room around midnight, probably nothing.\""
+        };
+
+        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5, evidence6, evidence7);
         context.SaveChanges();
 
         var clue1 = new Clue
@@ -243,7 +251,21 @@ public static class SeedData
             EvidenceId = evidence6.Id
         };
 
-        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5, clue6);
+        var clue7 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 7,
+            SourceLabel = "Intern's Cleanup Script",
+            PuzzleType = "fix_bug",
+            PromptText = "Alex's script was supposed to keep only logs from after a cutoff time, deleting anything older. Write getLogsToKeep(logs, cutoffTime) to keep entries where timestamp >= cutoffTime.",
+            StarterCode = "function getLogsToKeep(logs, cutoffTime) {\n  // BUG: comparison is inverted\n  return logs.filter(log => log.timestamp < cutoffTime);\n}",
+            Language = "javascript",
+            FunctionName = "getLogsToKeep",
+            EvidenceId = evidence7.Id
+        };
+
+        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5, clue6, clue7);
         context.SaveChanges();
 
         evidence3.ReinterpretedDescription = "Dev Okafor pushed a code change at 12:44 AM — but he didn't act alone. A deleted chat message shows Priya told him to push it, knowing the failing healthcheck it triggered would bring Marcus to the server room himself. Dev was used.";
@@ -424,12 +446,41 @@ public static class SeedData
             }
         };
 
+        var clue7Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue7.Id,
+                Input = "[{ id: 1, timestamp: 700 }, { id: 2, timestamp: 780 }], 750",
+                ExpectedOutput = "[{\"id\":2,\"timestamp\":780}]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue7.Id,
+                Input = "[{ id: 1, timestamp: 100 }], 750",
+                ExpectedOutput = "[]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue7.Id,
+                Input = "[{ id: 1, timestamp: 745 }, { id: 2, timestamp: 745 }], 745",
+                ExpectedOutput = "[{\"id\":1,\"timestamp\":745},{\"id\":2,\"timestamp\":745}]",
+                IsHidden = true
+            }
+        };
+
         context.PuzzleTestCases.AddRange(clue1Tests);
         context.PuzzleTestCases.AddRange(clue2Tests);
         context.PuzzleTestCases.AddRange(clue3Tests);
         context.PuzzleTestCases.AddRange(clue4Tests);
         context.PuzzleTestCases.AddRange(clue5Tests);
         context.PuzzleTestCases.AddRange(clue6Tests);
+        context.PuzzleTestCases.AddRange(clue7Tests);
 
         context.SaveChanges();
     }
