@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { CaseSummary } from "../types/case";
 import { getAllCases } from "../api/cases";
 import { getPlayer, registerPlayer } from "../api/player";
-import { getProgress } from "../api/progress";
 import { getSessionId } from "../utils/session";
 import { useNavigate } from "react-router-dom";
 import { StatusScreen } from "../components/shared/StatusScreen";
@@ -43,17 +42,7 @@ export function CaseSelect() {
     }
   }
 
-  async function handleSelectCase(c: CaseSummary) {
-    try {
-      const existingProgress = await getProgress(c.id, sessionId);
-      if (existingProgress) {
-        navigate(`/cases/${c.id}`);
-        return;
-      }
-    } catch {
-      // no progress yet - CaseHub will create it on load
-    }
-
+  function handleSelectCase(c: CaseSummary) {
     navigate(`/cases/${c.id}`);
   }
 
