@@ -122,7 +122,58 @@ public static class SeedData
             LinkedSuspectId = priya.Id
         };
 
-        context.Evidence.AddRange(evidence1, evidence2);
+        var evidence3 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Commit pushed 12:44 AM",
+            DescriptionText = "Dev Okafor pushed a code change from dev.okafor@nexlify.io at 12:44 AM — three minutes before time of death. He claims he was never in the building.",
+            LinkedSuspectId = suspects.First(s => s.Name == "Dev Okafor").Id
+        };
+
+        var evidence4 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Hidden camera footage, 12:40 AM",
+            DescriptionText = "Buried in a corrupted folder structure, one clip is timestamped 12:40 AM — showing the server room hallway moments before the murder. The footage is grainy, but a shape moves past camera range."
+        };
+
+        var evidence5 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Decoded message: LET IT GO MARCUS",
+            DescriptionText = "Buried in Marcus's unsaved code was a decoder for a message he'd received that night: \"LET IT GO MARCUS.\" Someone knew what he was planning to disclose — and wanted him to stop."
+        };
+
+        var evidence6 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Deleted message: Priya to Dev",
+            DescriptionText = "A deleted message from Priya to Dev, still present in the raw chat export: \"push the auth patch now — don't worry about the failing healthcheck, marcus will want to see it in person before the demo anyway.\" She knew a failing healthcheck would pull Marcus into the server room himself.",
+            LinkedSuspectId = suspects.First(s => s.Name == "Priya Patel").Id
+        };
+
+        var evidence7 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Alex's cleanup script comment",
+            DescriptionText = "Alex's cleanup script was supposed to auto-delete logs older than the retention cutoff every night - but a bug kept it from ever running correctly. That's the only reason any of tonight's evidence still exists. Buried in an unrelated comment in the script: \"saw someone by the server room around midnight, probably nothing.\""
+        };
+
+        var evidence8 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Final decoded confession",
+            DescriptionText = "Layered inside a base64-and-cipher-encoded note on Marcus's machine: \"I HAD TO STOP HIM.\" The case is closed.",
+            LinkedSuspectId = suspects.First(s => s.Name == "Priya Patel").Id
+        };
+
+        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5, evidence6, evidence7, evidence8);
         context.SaveChanges();
 
         var clue1 = new Clue
@@ -153,7 +204,95 @@ public static class SeedData
             FunctionName = "getServerRoomAccess"
         };
 
-        context.Clues.AddRange(clue1, clue2);
+        var clue3 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 3,
+            SourceLabel = "Git Commit History",
+            PuzzleType = "regex",
+            PromptText = "Extract the author's email and commit timestamp from a raw git log line. Write `extractCommitInfo(logLine)` returning `{ email, timestamp }`.",
+            StarterCode = "function extractCommitInfo(logLine) {\n  // logLine looks like:\n  // \"commit a1b2c3 | dev.okafor@nexlify.io | 2026-01-14T00:44:00Z | Fix leak\"\n  // TODO: extract the email and timestamp\n}",
+            Language = "javascript",
+            FunctionName = "extractCommitInfo",
+            EvidenceId = evidence3.Id
+        };
+
+        var clue4 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 4,
+            SourceLabel = "Camera Metadata",
+            PuzzleType = "recursion",
+            PromptText = "The security footage folder is corrupted — files nested inside renamed subfolders, several layers deep. Write `findClip(node, targetTime)` that walks the folder tree and returns the file node whose timestamp matches the target, or null if none exists.",
+            StarterCode = "function findClip(node, targetTime) {\n  // node: { type: \"folder\" | \"file\", name, children?, timestamp? }\n  // TODO: recursively search for the file with timestamp === targetTime\n}",
+            Language = "javascript",
+            FunctionName = "findClip",
+            EvidenceId = evidence4.Id
+        };
+
+        var clue5 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 5,
+            SourceLabel = "Marcus's Unsaved Code",
+            PuzzleType = "fix_bug",
+            PromptText = "Marcus's IDE has one unsaved file — a simple cipher decoder. Every letter in the encoded message was shifted forward by 3 (A→D, B→E, etc.). For example, \"HELLO\" encodes to \"KHOOR\". Fix decodeMessage(encoded) so it correctly shifts each letter back by 3 to reveal the original message. Spaces stay as spaces.",
+            StarterCode = "function decodeMessage(encoded) {\n  return encoded\n    .split('')\n    .map(char => {\n      if (char === ' ') return ' ';\n      // BUG: shifting the wrong direction\n      const code = char.charCodeAt(0) + 3;\n      return String.fromCharCode(code > 90 ? code - 26 : code);\n    })\n    .join('');\n}",
+            Language = "javascript",
+            FunctionName = "decodeMessage",
+            EvidenceId = evidence5.Id
+        };
+
+        var clue6 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 6,
+            SourceLabel = "Chat Export (JSON)",
+            PuzzleType = "parse_transform",
+            PromptText = "The company chat export includes messages the UI shows as deleted — but they're still present in the raw data. Write `findDeletedMessages(chatExport)` that returns the text of every message where deleted === true.",
+            StarterCode = "function findDeletedMessages(chatExport) {\n  // chatExport: array of { sender, text, deleted }\n  // TODO: return an array of text for messages where deleted === true\n}",
+            Language = "javascript",
+            FunctionName = "findDeletedMessages",
+            EvidenceId = evidence6.Id
+        };
+
+        var clue7 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 7,
+            SourceLabel = "Intern's Cleanup Script",
+            PuzzleType = "fix_bug",
+            PromptText = "Alex's script was supposed to keep only logs from after a cutoff time, deleting anything older. Write getLogsToKeep(logs, cutoffTime) to keep entries where timestamp >= cutoffTime.",
+            StarterCode = "function getLogsToKeep(logs, cutoffTime) {\n  // BUG: comparison is inverted\n  return logs.filter(log => log.timestamp < cutoffTime);\n}",
+            Language = "javascript",
+            FunctionName = "getLogsToKeep",
+            EvidenceId = evidence7.Id
+        };
+
+        var clue8 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 8,
+            SourceLabel = "Final Cipher",
+            PuzzleType = "multi_step_decode",
+            PromptText = "One last note, doubly encoded. First it was base64-encoded, then each letter was shifted forward by 5. Write decodeConfession(cipherText) that reverses both steps: base64-decode, then shift each letter back by 5. Hint: use Buffer.from(cipherText, 'base64').toString() to base64-decode in this environment - not atob, which isn't available here.",
+            StarterCode = "function decodeConfession(cipherText) {\n  // Step 1: base64-decode cipherText\n  // Step 2: shift each letter back by 5 (A-Z only, spaces stay as spaces)\n  // TODO\n}",
+            Language = "javascript",
+            FunctionName = "decodeConfession",
+            EvidenceId = evidence8.Id
+        };
+
+        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5, clue6, clue7, clue8);
+        context.SaveChanges();
+
+        evidence3.ReinterpretedDescription = "Dev Okafor pushed a code change at 12:44 AM — but he didn't act alone. A deleted chat message shows Priya told him to push it, knowing the failing healthcheck it triggered would bring Marcus to the server room himself. Dev was used.";
+        evidence3.ReinterpretedAfterClueId = clue6.Id;
         context.SaveChanges();
 
         // --- Test cases for Clue 1 ---
@@ -216,8 +355,177 @@ public static class SeedData
             }
         };
 
+        // --- Test cases for Clue 3 ---
+
+        var clue3Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue3.Id,
+                Input = "\"commit a1b2c3 | dev.okafor@nexlify.io | 2026-01-14T00:44:00Z | Fix leak\"",
+                ExpectedOutput = "{\"email\":\"dev.okafor@nexlify.io\",\"timestamp\":\"2026-01-14T00:44:00Z\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue3.Id,
+                Input = "\"commit f9e8d7 | priya.patel@nexlify.io | 2026-01-14T00:41:00Z | hotfix\"",
+                ExpectedOutput = "{\"email\":\"priya.patel@nexlify.io\",\"timestamp\":\"2026-01-14T00:41:00Z\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue3.Id,
+                Input = "\"commit 111aaa | sarah.kim@nexlify.io | 2026-01-13T23:58:00Z | notes\"",
+                ExpectedOutput = "{\"email\":\"sarah.kim@nexlify.io\",\"timestamp\":\"2026-01-13T23:58:00Z\"}",
+                IsHidden = true
+            }
+        };
+
+        var clue4Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue4.Id,
+                Input = "{ type: \"file\", name: \"clip1.mp4\", timestamp: \"12:40\" }, \"12:40\"",
+                ExpectedOutput = "{\"type\":\"file\",\"name\":\"clip1.mp4\",\"timestamp\":\"12:40\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue4.Id,
+                Input = "{ type: \"folder\", name: \"root\", children: [{ type: \"folder\", name: \"a\", children: [{ type: \"folder\", name: \"b\", children: [{ type: \"file\", name: \"deep.mp4\", timestamp: \"12:40\" }] }] }] }, \"12:40\"",
+                ExpectedOutput = "{\"type\":\"file\",\"name\":\"deep.mp4\",\"timestamp\":\"12:40\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue4.Id,
+                Input = "{ type: \"folder\", name: \"root\", children: [{ type: \"file\", name: \"clip2.mp4\", timestamp: \"09:00\" }] }, \"12:40\"",
+                ExpectedOutput = "null",
+                IsHidden = true
+            }
+        };
+
+        var clue5Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue5.Id,
+                Input = "\"KHOOR\"",
+                ExpectedOutput = "\"HELLO\"",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue5.Id,
+                Input = "\"WHVW\"",
+                ExpectedOutput = "\"TEST\"",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue5.Id,
+                Input = "\"OHW LW JR PDUFXV\"",
+                ExpectedOutput = "\"LET IT GO MARCUS\"",
+                IsHidden = true
+            }
+        };
+
+        var clue6Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue6.Id,
+                Input = "[{\"sender\":\"Priya\",\"text\":\"hey\",\"deleted\":false},{\"sender\":\"Priya\",\"text\":\"push that update now\",\"deleted\":true}]",
+                ExpectedOutput = "[\"push that update now\"]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue6.Id,
+                Input = "[{\"sender\":\"Tom\",\"text\":\"dinner at 8?\",\"deleted\":false}]",
+                ExpectedOutput = "[]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue6.Id,
+                Input = "[{\"sender\":\"Priya\",\"text\":\"push the auth patch now - don't worry about the failing healthcheck, marcus will want to see it in person before the demo anyway\",\"deleted\":true},{\"sender\":\"Dev\",\"text\":\"on it\",\"deleted\":false}]",
+                ExpectedOutput = "[\"push the auth patch now - don't worry about the failing healthcheck, marcus will want to see it in person before the demo anyway\"]",
+                IsHidden = true
+            }
+        };
+
+        var clue7Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue7.Id,
+                Input = "[{ id: 1, timestamp: 700 }, { id: 2, timestamp: 780 }], 750",
+                ExpectedOutput = "[{\"id\":2,\"timestamp\":780}]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue7.Id,
+                Input = "[{ id: 1, timestamp: 100 }], 750",
+                ExpectedOutput = "[]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue7.Id,
+                Input = "[{ id: 1, timestamp: 745 }, { id: 2, timestamp: 745 }], 745",
+                ExpectedOutput = "[{\"id\":1,\"timestamp\":745},{\"id\":2,\"timestamp\":745}]",
+                IsHidden = true
+            }
+        };
+
+        var clue8Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue8.Id,
+                Input = "\"TUpRUVQ=\"",
+                ExpectedOutput = "\"HELLO\"",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue8.Id,
+                Input = "\"TiBNRkkgWVQgWFlUVSBNTlI=\"",
+                ExpectedOutput = "\"I HAD TO STOP HIM\"",
+                IsHidden = true
+            }
+        };
+
         context.PuzzleTestCases.AddRange(clue1Tests);
         context.PuzzleTestCases.AddRange(clue2Tests);
+        context.PuzzleTestCases.AddRange(clue3Tests);
+        context.PuzzleTestCases.AddRange(clue4Tests);
+        context.PuzzleTestCases.AddRange(clue5Tests);
+        context.PuzzleTestCases.AddRange(clue6Tests);
+        context.PuzzleTestCases.AddRange(clue7Tests);
+        context.PuzzleTestCases.AddRange(clue8Tests);
+
         context.SaveChanges();
     }
 }
