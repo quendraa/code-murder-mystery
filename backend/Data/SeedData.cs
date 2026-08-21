@@ -147,7 +147,16 @@ public static class SeedData
             DescriptionText = "Buried in Marcus's unsaved code was a decoder for a message he'd received that night: \"LET IT GO MARCUS.\" Someone knew what he was planning to disclose — and wanted him to stop."
         };
 
-        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5);
+        var evidence6 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Deleted message: Priya to Dev",
+            DescriptionText = "A deleted message from Priya to Dev, still present in the raw chat export: \"push the auth patch now — don't worry about the failing healthcheck, marcus will want to see it in person before the demo anyway.\" She knew a failing healthcheck would pull Marcus into the server room himself.",
+            LinkedSuspectId = suspects.First(s => s.Name == "Priya Patel").Id
+        };
+
+        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5, evidence6);
         context.SaveChanges();
 
         var clue1 = new Clue
@@ -220,7 +229,25 @@ public static class SeedData
             EvidenceId = evidence5.Id
         };
 
-        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5);
+        var clue6 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 6,
+            SourceLabel = "Chat Export (JSON)",
+            PuzzleType = "parse_transform",
+            PromptText = "The company chat export includes messages the UI shows as deleted — but they're still present in the raw data. Write `findDeletedMessages(chatExport)` that returns the text of every message where deleted === true.",
+            StarterCode = "function findDeletedMessages(chatExport) {\n  // chatExport: array of { sender, text, deleted }\n  // TODO: return an array of text for messages where deleted === true\n}",
+            Language = "javascript",
+            FunctionName = "findDeletedMessages",
+            EvidenceId = evidence6.Id
+        };
+
+        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5, clue6);
+        context.SaveChanges();
+
+        evidence3.ReinterpretedDescription = "Dev Okafor pushed a code change at 12:44 AM — but he didn't act alone. A deleted chat message shows Priya told him to push it, knowing the failing healthcheck it triggered would bring Marcus to the server room himself. Dev was used.";
+        evidence3.ReinterpretedAfterClueId = clue6.Id;
         context.SaveChanges();
 
         // --- Test cases for Clue 1 ---
@@ -369,11 +396,41 @@ public static class SeedData
             }
         };
 
+        var clue6Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue6.Id,
+                Input = "[{\"sender\":\"Priya\",\"text\":\"hey\",\"deleted\":false},{\"sender\":\"Priya\",\"text\":\"push that update now\",\"deleted\":true}]",
+                ExpectedOutput = "[\"push that update now\"]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue6.Id,
+                Input = "[{\"sender\":\"Tom\",\"text\":\"dinner at 8?\",\"deleted\":false}]",
+                ExpectedOutput = "[]",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue6.Id,
+                Input = "[{\"sender\":\"Priya\",\"text\":\"push the auth patch now - don't worry about the failing healthcheck, marcus will want to see it in person before the demo anyway\",\"deleted\":true},{\"sender\":\"Dev\",\"text\":\"on it\",\"deleted\":false}]",
+                ExpectedOutput = "[\"push the auth patch now - don't worry about the failing healthcheck, marcus will want to see it in person before the demo anyway\"]",
+                IsHidden = true
+            }
+        };
+
         context.PuzzleTestCases.AddRange(clue1Tests);
         context.PuzzleTestCases.AddRange(clue2Tests);
         context.PuzzleTestCases.AddRange(clue3Tests);
         context.PuzzleTestCases.AddRange(clue4Tests);
         context.PuzzleTestCases.AddRange(clue5Tests);
+        context.PuzzleTestCases.AddRange(clue6Tests);
+
         context.SaveChanges();
     }
 }
