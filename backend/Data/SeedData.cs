@@ -131,7 +131,15 @@ public static class SeedData
             LinkedSuspectId = suspects.First(s => s.Name == "Dev Okafor").Id
         };
 
-        context.Evidence.AddRange(evidence1, evidence2, evidence3);
+        var evidence4 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Hidden camera footage, 12:40 AM",
+            DescriptionText = "Buried in a corrupted folder structure, one clip is timestamped 12:40 AM — showing the server room hallway moments before the murder. The footage is grainy, but a shape moves past camera range."
+        };
+
+        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4);
         context.SaveChanges();
 
         var clue1 = new Clue
@@ -176,7 +184,21 @@ public static class SeedData
             EvidenceId = evidence3.Id
         };
 
-        context.Clues.AddRange(clue1, clue2, clue3);
+        var clue4 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 4,
+            SourceLabel = "Camera Metadata",
+            PuzzleType = "recursion",
+            PromptText = "The security footage folder is corrupted — files nested inside renamed subfolders, several layers deep. Write `findClip(node, targetTime)` that walks the folder tree and returns the file node whose timestamp matches the target, or null if none exists.",
+            StarterCode = "function findClip(node, targetTime) {\n  // node: { type: \"folder\" | \"file\", name, children?, timestamp? }\n  // TODO: recursively search for the file with timestamp === targetTime\n}",
+            Language = "javascript",
+            FunctionName = "findClip",
+            EvidenceId = evidence4.Id
+        };
+
+        context.Clues.AddRange(clue1, clue2, clue3, clue4);
         context.SaveChanges();
 
         // --- Test cases for Clue 1 ---
@@ -269,9 +291,40 @@ public static class SeedData
             }
         };
 
+        var clue4Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue4.Id,
+                Input = "{ type: \"file\", name: \"clip1.mp4\", timestamp: \"12:40\" }, \"12:40\"",
+                ExpectedOutput = "{\"type\":\"file\",\"name\":\"clip1.mp4\",\"timestamp\":\"12:40\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue4.Id,
+                Input = "{ type: \"folder\", name: \"root\", children: [{ type: \"folder\", name: \"a\", children: [{ type: \"folder\", name: \"b\", children: [{ type: \"file\", name: \"deep.mp4\", timestamp: \"12:40\" }] }] }] }, \"12:40\"",
+                ExpectedOutput = "{\"type\":\"file\",\"name\":\"deep.mp4\",\"timestamp\":\"12:40\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue4.Id,
+                Input = "{ type: \"folder\", name: \"root\", children: [{ type: \"file\", name: \"clip2.mp4\", timestamp: \"09:00\" }] }, \"12:40\"",
+                ExpectedOutput = "null",
+                IsHidden = true
+            }
+        };
+
+
         context.PuzzleTestCases.AddRange(clue1Tests);
         context.PuzzleTestCases.AddRange(clue2Tests);
         context.PuzzleTestCases.AddRange(clue3Tests);
+        context.PuzzleTestCases.AddRange(clue4Tests);
+
         context.SaveChanges();
     }
 }
