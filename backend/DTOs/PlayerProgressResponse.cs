@@ -6,5 +6,7 @@ public record class PlayerProgressResponse(
     int CurrentClueIndex,
     List<Guid> SolvedClueIds,
     DateTime StartedAt,
-    DateTime? CompletedAt
+    DateTime? CompletedAt,
+    bool? AccusedCorrectly,
+    Guid? AccusedSuspectId
 );

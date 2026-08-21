@@ -83,7 +83,9 @@ public class PlayerProgressService(CaseFileDbContext context) : IPlayerProgressS
             progress.CurrentClueIndex,
             ParseSolvedIds(progress.SolvedClueIds),
             progress.StartedAt,
-            progress.CompletedAt
+            progress.CompletedAt,
+            progress.AccusedCorrectly,
+            progress.AccusedSuspectId
         );
 
     public async Task ResetProgressAsync(Guid caseId, string sessionId)

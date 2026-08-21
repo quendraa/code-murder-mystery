@@ -26,3 +26,12 @@ export async function getProgress(
 
   return response.data;
 }
+
+export async function resetProgress(
+  caseId: string,
+  sessionId: string,
+): Promise<void> {
+  await axios.delete<void>(`${API_BASE_URL}/progress/${caseId}`, {
+    params: { sessionId },
+  });
+}
