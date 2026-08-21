@@ -122,7 +122,16 @@ public static class SeedData
             LinkedSuspectId = priya.Id
         };
 
-        context.Evidence.AddRange(evidence1, evidence2);
+        var evidence3 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Commit pushed 12:44 AM",
+            DescriptionText = "Dev Okafor pushed a code change from dev.okafor@nexlify.io at 12:44 AM — three minutes before time of death. He claims he was never in the building.",
+            LinkedSuspectId = suspects.First(s => s.Name == "Dev Okafor").Id
+        };
+
+        context.Evidence.AddRange(evidence1, evidence2, evidence3);
         context.SaveChanges();
 
         var clue1 = new Clue
@@ -153,7 +162,21 @@ public static class SeedData
             FunctionName = "getServerRoomAccess"
         };
 
-        context.Clues.AddRange(clue1, clue2);
+        var clue3 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 3,
+            SourceLabel = "Git Commit History",
+            PuzzleType = "regex",
+            PromptText = "Extract the author's email and commit timestamp from a raw git log line. Write `extractCommitInfo(logLine)` returning `{ email, timestamp }`.",
+            StarterCode = "function extractCommitInfo(logLine) {\n  // logLine looks like:\n  // \"commit a1b2c3 | dev.okafor@nexlify.io | 2026-01-14T00:44:00Z | Fix leak\"\n  // TODO: extract the email and timestamp\n}",
+            Language = "javascript",
+            FunctionName = "extractCommitInfo",
+            EvidenceId = evidence3.Id
+        };
+
+        context.Clues.AddRange(clue1, clue2, clue3);
         context.SaveChanges();
 
         // --- Test cases for Clue 1 ---
@@ -216,8 +239,39 @@ public static class SeedData
             }
         };
 
+        // --- Test cases for Clue 3 ---
+
+        var clue3Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue3.Id,
+                Input = "\"commit a1b2c3 | dev.okafor@nexlify.io | 2026-01-14T00:44:00Z | Fix leak\"",
+                ExpectedOutput = "{\"email\":\"dev.okafor@nexlify.io\",\"timestamp\":\"2026-01-14T00:44:00Z\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue3.Id,
+                Input = "\"commit f9e8d7 | priya.patel@nexlify.io | 2026-01-14T00:41:00Z | hotfix\"",
+                ExpectedOutput = "{\"email\":\"priya.patel@nexlify.io\",\"timestamp\":\"2026-01-14T00:41:00Z\"}",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue3.Id,
+                Input = "\"commit 111aaa | sarah.kim@nexlify.io | 2026-01-13T23:58:00Z | notes\"",
+                ExpectedOutput = "{\"email\":\"sarah.kim@nexlify.io\",\"timestamp\":\"2026-01-13T23:58:00Z\"}",
+                IsHidden = true
+            }
+        };
+
         context.PuzzleTestCases.AddRange(clue1Tests);
         context.PuzzleTestCases.AddRange(clue2Tests);
+        context.PuzzleTestCases.AddRange(clue3Tests);
         context.SaveChanges();
     }
 }
