@@ -47,5 +47,9 @@ public class CaseFileDbContext : DbContext
         modelBuilder.Entity<Player>()
             .HasIndex(p => p.SessionId)
             .IsUnique();
+
+        modelBuilder.Entity<PlayerProgress>()
+            .HasIndex(p => new { p.CaseId, p.PlayerSessionId })
+            .IsUnique();
     }
 }
