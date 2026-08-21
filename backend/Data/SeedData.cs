@@ -139,7 +139,15 @@ public static class SeedData
             DescriptionText = "Buried in a corrupted folder structure, one clip is timestamped 12:40 AM — showing the server room hallway moments before the murder. The footage is grainy, but a shape moves past camera range."
         };
 
-        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4);
+        var evidence5 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Decoded message: LET IT GO MARCUS",
+            DescriptionText = "Buried in Marcus's unsaved code was a decoder for a message he'd received that night: \"LET IT GO MARCUS.\" Someone knew what he was planning to disclose — and wanted him to stop."
+        };
+
+        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5);
         context.SaveChanges();
 
         var clue1 = new Clue
@@ -198,7 +206,21 @@ public static class SeedData
             EvidenceId = evidence4.Id
         };
 
-        context.Clues.AddRange(clue1, clue2, clue3, clue4);
+        var clue5 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 5,
+            SourceLabel = "Marcus's Unsaved Code",
+            PuzzleType = "fix_bug",
+            PromptText = "Marcus's IDE has one unsaved file — a simple cipher decoder. Every letter in the encoded message was shifted forward by 3 (A→D, B→E, etc.). For example, \"HELLO\" encodes to \"KHOOR\". Fix decodeMessage(encoded) so it correctly shifts each letter back by 3 to reveal the original message. Spaces stay as spaces.",
+            StarterCode = "function decodeMessage(encoded) {\n  return encoded\n    .split('')\n    .map(char => {\n      if (char === ' ') return ' ';\n      // BUG: shifting the wrong direction\n      const code = char.charCodeAt(0) + 3;\n      return String.fromCharCode(code > 90 ? code - 26 : code);\n    })\n    .join('');\n}",
+            Language = "javascript",
+            FunctionName = "decodeMessage",
+            EvidenceId = evidence5.Id
+        };
+
+        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5);
         context.SaveChanges();
 
         // --- Test cases for Clue 1 ---
@@ -319,12 +341,39 @@ public static class SeedData
             }
         };
 
+        var clue5Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue5.Id,
+                Input = "\"KHOOR\"",
+                ExpectedOutput = "\"HELLO\"",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue5.Id,
+                Input = "\"WHVW\"",
+                ExpectedOutput = "\"TEST\"",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue5.Id,
+                Input = "\"OHW LW JR PDUFXV\"",
+                ExpectedOutput = "\"LET IT GO MARCUS\"",
+                IsHidden = true
+            }
+        };
 
         context.PuzzleTestCases.AddRange(clue1Tests);
         context.PuzzleTestCases.AddRange(clue2Tests);
         context.PuzzleTestCases.AddRange(clue3Tests);
         context.PuzzleTestCases.AddRange(clue4Tests);
-
+        context.PuzzleTestCases.AddRange(clue5Tests);
         context.SaveChanges();
     }
 }
