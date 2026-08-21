@@ -164,7 +164,16 @@ public static class SeedData
             DescriptionText = "Alex's cleanup script was supposed to auto-delete logs older than the retention cutoff every night - but a bug kept it from ever running correctly. That's the only reason any of tonight's evidence still exists. Buried in an unrelated comment in the script: \"saw someone by the server room around midnight, probably nothing.\""
         };
 
-        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5, evidence6, evidence7);
+        var evidence8 = new Evidence
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            Title = "Final decoded confession",
+            DescriptionText = "Layered inside a base64-and-cipher-encoded note on Marcus's machine: \"I HAD TO STOP HIM.\" The case is closed.",
+            LinkedSuspectId = suspects.First(s => s.Name == "Priya Patel").Id
+        };
+
+        context.Evidence.AddRange(evidence1, evidence2, evidence3, evidence4, evidence5, evidence6, evidence7, evidence8);
         context.SaveChanges();
 
         var clue1 = new Clue
@@ -265,7 +274,21 @@ public static class SeedData
             EvidenceId = evidence7.Id
         };
 
-        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5, clue6, clue7);
+        var clue8 = new Clue
+        {
+            Id = Guid.NewGuid(),
+            CaseId = caseEntity.Id,
+            OrderIndex = 8,
+            SourceLabel = "Final Cipher",
+            PuzzleType = "multi_step_decode",
+            PromptText = "One last note, doubly encoded. First it was base64-encoded, then each letter was shifted forward by 5. Write decodeConfession(cipherText) that reverses both steps: base64-decode, then shift each letter back by 5. Hint: use Buffer.from(cipherText, 'base64').toString() to base64-decode in this environment - not atob, which isn't available here.",
+            StarterCode = "function decodeConfession(cipherText) {\n  // Step 1: base64-decode cipherText\n  // Step 2: shift each letter back by 5 (A-Z only, spaces stay as spaces)\n  // TODO\n}",
+            Language = "javascript",
+            FunctionName = "decodeConfession",
+            EvidenceId = evidence8.Id
+        };
+
+        context.Clues.AddRange(clue1, clue2, clue3, clue4, clue5, clue6, clue7, clue8);
         context.SaveChanges();
 
         evidence3.ReinterpretedDescription = "Dev Okafor pushed a code change at 12:44 AM — but he didn't act alone. A deleted chat message shows Priya told him to push it, knowing the failing healthcheck it triggered would bring Marcus to the server room himself. Dev was used.";
@@ -474,6 +497,26 @@ public static class SeedData
             }
         };
 
+        var clue8Tests = new List<PuzzleTestCase>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue8.Id,
+                Input = "\"TUpRUVQ=\"",
+                ExpectedOutput = "\"HELLO\"",
+                IsHidden = false
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClueId = clue8.Id,
+                Input = "\"TiBNRkkgWVQgWFlUVSBNTlI=\"",
+                ExpectedOutput = "\"I HAD TO STOP HIM\"",
+                IsHidden = true
+            }
+        };
+
         context.PuzzleTestCases.AddRange(clue1Tests);
         context.PuzzleTestCases.AddRange(clue2Tests);
         context.PuzzleTestCases.AddRange(clue3Tests);
@@ -481,6 +524,7 @@ public static class SeedData
         context.PuzzleTestCases.AddRange(clue5Tests);
         context.PuzzleTestCases.AddRange(clue6Tests);
         context.PuzzleTestCases.AddRange(clue7Tests);
+        context.PuzzleTestCases.AddRange(clue8Tests);
 
         context.SaveChanges();
     }
