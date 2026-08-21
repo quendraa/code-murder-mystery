@@ -83,6 +83,20 @@ public class PlayerProgressService(CaseFileDbContext context) : IPlayerProgressS
             progress.CurrentClueIndex,
             ParseSolvedIds(progress.SolvedClueIds),
             progress.StartedAt,
-            progress.CompletedAt
+            progress.CompletedAt,
+            progress.AccusedCorrectly,
+            progress.AccusedSuspectId
         );
+
+    public async Task ResetProgressAsync(Guid caseId, string sessionId)
+    {
+        var progress = await context.PlayerProgress
+            .FirstOrDefaultAsync(p => p.CaseId == caseId && p.PlayerSessionId == sessionId);
+
+        if (progress != null)
+        {
+            context.PlayerProgress.Remove(progress);
+            await context.SaveChangesAsync();
+        }
+    }
 }

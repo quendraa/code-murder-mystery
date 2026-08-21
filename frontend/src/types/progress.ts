@@ -5,4 +5,6 @@ export interface PlayerProgress {
   solvedClueIds: string[];
   startedAt: string;
   completedAt: string | null;
+  accusedCorrectly: boolean | null;
+  accusedSuspectId: string | null;
 }

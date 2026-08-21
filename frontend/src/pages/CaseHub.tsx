@@ -9,6 +9,10 @@ import SuspectCard from "../components/SuspectCard";
 import type { ClueSummary } from "../types/clue";
 import type { Evidence } from "../types/evidence";
 import { StatusScreen } from "../components/shared/StatusScreen";
+import type { AccusationResult } from "../types/accusation";
+import { submitAccusation } from "../api/accusation";
+import { resetProgress } from "../api/progress";
+import { CaseClosedRecap } from "../components/CaseClosedRecap";
 
 export function CaseHub() {
   const { id } = useParams<{ id: string }>();
@@ -21,11 +25,33 @@ export function CaseHub() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [closedResult, setClosedResult] = useState<AccusationResult | null>(
+    null,
+  );
+  const [replaying, setReplaying] = useState(false);
+
   const {
     progress,
     loading: progressLoading,
     error: progressError,
   } = useCaseProgress(id);
+
+  useEffect(() => {
+    console.log("progress:", progress);
+    if (!id || !progress || !progress.completedAt || !progress.accusedSuspectId)
+      return;
+
+    const sessionId = getSessionId();
+
+    submitAccusation(id, sessionId, progress.accusedSuspectId)
+      .then((data) => {
+        console.log("closedResult:", data);
+        setClosedResult(data);
+      })
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : "Failed to load result"),
+      );
+  }, [id, progress]);
 
   useEffect(() => {
     if (!id) return;
@@ -42,6 +68,19 @@ export function CaseHub() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  async function handleReplay() {
+    if (!id) return;
+    setReplaying(true);
+    try {
+      const sessionId = getSessionId();
+      await resetProgress(id, sessionId);
+      window.location.reload(); // simplest way to force a fully fresh mount + refetch
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to reset");
+      setReplaying(false);
+    }
+  }
+
   if (loading || progressLoading) {
     return <StatusScreen variant="loading" message="Loading case file..." />;
   }
@@ -51,6 +90,16 @@ export function CaseHub() {
       <StatusScreen
         variant="error"
         message={`Error: ${error || progressError}`}
+      />
+    );
+  }
+
+  if (progress.completedAt && closedResult) {
+    return (
+      <CaseClosedRecap
+        result={closedResult}
+        onReplay={handleReplay}
+        replaying={replaying}
       />
     );
   }
