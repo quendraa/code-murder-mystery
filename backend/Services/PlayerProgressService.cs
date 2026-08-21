@@ -25,7 +25,20 @@ public class PlayerProgressService(CaseFileDbContext context) : IPlayerProgressS
             };
 
             context.PlayerProgress.Add(progress);
-            await context.SaveChangesAsync();
+
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Another concurrent request already created this row - detach our
+                // failed attempt and fetch the one that succeeded instead.
+                context.Entry(progress).State = EntityState.Detached;
+                progress = await context.PlayerProgress
+                    .FirstOrDefaultAsync(p => p.CaseId == caseId && p.PlayerSessionId == sessionId)
+                    ?? throw new InvalidOperationException("Progress creation race condition could not be resolved.");
+            }
         }
 
         return MapToResponse(progress);
